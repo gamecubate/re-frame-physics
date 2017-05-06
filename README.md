@@ -6,8 +6,10 @@ This project aims to bring a live, ClojureScript driven, physics engine rig defi
 
 # Dependencies
 This project relies on two other (awesome) projects:
+
 - the [planck.js](https://github.com/shakiba/planck.js/) physics engine
 - the [re-frame](https://github.com/Day8/re-frame) framework.
+
 Thanks to their authors for making this possible.
 
 # Getting Started
