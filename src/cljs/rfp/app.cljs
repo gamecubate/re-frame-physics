@@ -6,8 +6,8 @@
             [rfp.core.events]
             [rfp.core.subs]
             [rfp.core.views :as views]
-            [rfp.core.utils :as u]
-            [rfp.core.devtools]))
+            [rfp.core.utils :as u]))
+            ;[rfp.core.devtools]))
 
 ;; -- An extra rig ------------------------------------------------------------
 (defn four-discs [w h]
@@ -45,7 +45,7 @@
   (fn []
     [:div.overlay
       [:h1 "re-frame + planck.js"]
-      [:p.disabled "Source on "
+      [:p "Source on "
         [:a {:href "https://github.com/gamecubate/re-frame-physics"} "GitHub"]]]))
 
 ;; -- Entry Point -------------------------------------------------------------
