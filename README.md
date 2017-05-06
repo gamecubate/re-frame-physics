@@ -1,8 +1,5 @@
 # Goal
-This project aims to bring a live, ClojureScript driven, physics engine rig definition and testbed to the browser.
-
-- One or more rigs would be defined in a browser pane with ClojureScript hash maps.
-- Another pane would display a physics engine driven simulation of those rigs.
+Bring a live ClojureScript physics engine rig definition and simulation testbed to the browser.
 
 # Dependencies
 This project relies on two other (awesome) projects:
@@ -12,9 +9,15 @@ This project relies on two other (awesome) projects:
 
 Thanks to their authors for making this possible.
 
+# Flow
+- One or more rigs are defined using ClojureScript hash maps in a KLIPSE-driven code evaluator.
+- A physics engine driven simulation of those rigs is performed by the planck.js engine.
+- Each rig component is rendered reactively with Reagent.
+- Application flow is managed by re-frame.
+
 # Getting Started
 
-Clone this project, open a terminal on the project root, run the ```boot dev``` commmand and point your browser to ```localhost:4000```.
+Clone this project, open a terminal on the project root, run the ```boot dev``` command and point your browser to ```localhost:4000```.
 
 If the boot command fails because that port is already taken, edit ```build.boot```, re-assigning a different (and free) port number on the ```serve {:port 4000}``` line.
 
