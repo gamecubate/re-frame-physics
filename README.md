@@ -2,15 +2,15 @@
 Bring a live ClojureScript physics engine rig definition and simulation testbed to the browser.
 
 # Dependencies
-The current version of this project relies on two other (awesome) projects:
+The current version of this project relies on other (awesome) projects:
 
-- the [planck.js](https://github.com/shakiba/planck.js/) physics engine
-- the [re-frame](https://github.com/Day8/re-frame) framework.
+- Ali Shakiba's [Planck.js](http://shakiba.me/planck.js), a JavaScript rewrite of Erin Catto's [Box2D](http://box2d.org/) physics engine.
+- Mike Thompson's [re-frame](https://github.com/Day8/re-frame), a Reagent framework for writing SPAs.
 
 Thanks to their authors for making this easier.
 
 # Overview
-- One or more rigs are defined using ClojureScript hash maps in a KLIPSE-driven code evaluator.
+- One or more rigs are defined with ClojureScript hash maps in a KLIPSE browser plugin.
 - A physics engine driven simulation of those rigs is performed by the planck.js engine.
 - Each rig component is rendered reactively with Reagent.
 - Application flow is managed by re-frame.
