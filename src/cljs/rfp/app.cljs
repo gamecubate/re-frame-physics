@@ -6,12 +6,12 @@
             [rfp.core.events]
             [rfp.core.subs]
             [rfp.core.views :as views]
-            [rfp.core.utils :as u]))
-            ;[rfp.core.devtools]))
+            [rfp.core.utils :as u]
+            [rfp.core.devtools]))
 
 ;; -- An extra rig ------------------------------------------------------------
 (defn four-discs [w h]
-  "Place four static discs at each intersection of a 3x3 grid"
+  "Place a static disc at each intersection of a 3x3 grid"
   (let [body-opts {:type :static}
         min (min w h)]
     [{:type "disc" :id "fd-d1" :cx (/ w 3)       :cy (/ h 3)       :r (* min 0.12) :body-opts body-opts}
@@ -46,7 +46,7 @@
     [:div.overlay
       [:h1 "re-frame + planck.js"]
       [:p.disabled "Source on "
-        [:a {:href "http://alexr.ca"} "GitHub"]]]))
+        [:a {:href "https://github.com/gamecubate/re-frame-physics"} "GitHub"]]]))
 
 ;; -- Entry Point -------------------------------------------------------------
 (defn run []
