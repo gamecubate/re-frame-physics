@@ -6,6 +6,7 @@ planck.World = function(){
   this.step = function(){};
   this.getBodyList = function(){};
   this.getFixtureList = function(){};
+  this.getJointList = function(){};
   this.setGravity = function(){};
 }
 
@@ -21,6 +22,11 @@ planck.Body = function(){
 planck.Fixture = function(){
   this.getType = function(){};
 }
+
+planck.Joint = function(){
+  this.getAnchorA = function(){};
+  this.getAnchorB = function(){};
+};
 
 // var WGo = {
 //   B: 1,
