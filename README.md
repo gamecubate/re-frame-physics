@@ -9,7 +9,7 @@ The current version of this project relies on other (awesome) projects:
 
 Thanks to their authors for making this easier.
 
-# Overview
+# Goal / Overview
 - One or more rigs are defined with ClojureScript hash maps in a KLIPSE browser plugin.
 - A physics engine driven simulation of those rigs is performed by the planck.js engine.
 - Each rig component is rendered reactively with Reagent.
