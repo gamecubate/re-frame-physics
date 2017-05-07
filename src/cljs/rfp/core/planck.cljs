@@ -39,6 +39,14 @@
       (recur (.getNext f)
              (conj res f)))))
 
+(defn joints [world]
+  (loop [j (.getJointList world)
+         res []]
+    (if-not j
+      res
+      (recur (.getNext j)
+             (conj res j)))))
+
 ;; -- Shapes ------------------------------------------------------------------
 (defn box [hw hh]
   (.Box P (px->m hw) (px->m hh)))
@@ -105,15 +113,18 @@
   (js->clj (.getUserData obj) :keywordize-keys true))
 
 (defn pos-angle [obj]
-  (let [pos (position obj)
+  (let [pos (.getPosition obj)
         cx (m->px (.-x pos))
         cy (m->px (.-y pos))
         a (angle obj)]
     {:cx cx :cy cy :angle a}))
 
+(defn obj-id [obj world]
+  (:id (user-data obj)))
+
 (defn find-body [id world]
   (let [bs (bodies world)]
-    (first (filter #(= id (:id (user-data %))) bs))))
+    (first (filter #(= id (obj-id % world)) bs))))
 
 ;; -- Fixtures ----------------------------------------------------------------
 ;;
@@ -149,6 +160,19 @@
 (defn create-fixture [body shape opts]
   (.createFixture body shape (clj->js opts)))
 
+;; -- Joints ---------------------------------------------------------
+(defn anchor-a [j]
+  (let [anchor (.getAnchorA j)
+        x (m->px (.-x anchor))
+        y (m->px (.-y anchor))]
+    {:ax x :ay y}))
+
+(defn anchor-b [j]
+  (let [anchor (.getAnchorB j)
+        x (m->px (.-x anchor))
+        y (m->px (.-y anchor))]
+    {:bx x :by y}))
+
 ;; -- Revolute Joints ---------------------------------------------------------
 ;;
 ;; Definitions
@@ -167,7 +191,8 @@
 ;; dot            Should a dot be added to rendered view to help show angles?
 ;;
 (def view-defaults {:visible true
-                    :dot false})
+                    :dot false
+                    :label false})
 
 ;; -- Makers ------------------------------------------------------------------
 (defn assemble-disc' [spec world]

@@ -56,9 +56,30 @@ svg circle.dot {
   stroke: none;
 }
 
+svg .joint .anchor {
+  fill: #FFF;
+  stroke: none;
+}
+
+svg text.label {
+  font-family: 'Roboto Slab', serif;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  fill-opacity: 0.5;
+  fill: #FFF;
+}
+
+svg .shape text.label {
+  /*fill: #FFF;*/
+}
+
+svg .joint text.label {
+  /*fill: #096DBA;*/
+}
+
 svg .shape.invisible * {
   fill-opacity: 0;
-  stroke-opacity: 0.2;
+  stroke-opacity: 0;
 }
 
 #container .demo .overlay {

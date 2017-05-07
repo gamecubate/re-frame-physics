@@ -27,44 +27,47 @@
 (defn walls
   "Walls to enclose a space, thus preventing bodies within from
    escaping"
-  [w h]
+  [id w h]
   (let [hw (/ w 2)
         hh (/ h 2)
         min (min w h)]
-    [{:type "box" :id "wall-n" :cx hw :cy 0  :hw hw :hh  1 :body-opts {:type "static"}}
-     {:type "box" :id "wall-s" :cx hw :cy h  :hw hw :hh  1 :body-opts {:type "static"}}
-     {:type "box" :id "wall-e" :cx  w :cy hh :hw 1  :hh hh :body-opts {:type "static"}}
-     {:type "box" :id "wall-w" :cx  0 :cy hh :hw 1  :hh hh :body-opts {:type "static"}}]))
-
-(defn disc-and-box
-  "A static disc and, above it, a dynamic 10px x 10px box"
-  [w h]
-  [{:type "disc" :id "r1d1" :cx (/ w 4) :cy (* h 0.75) :r 20 :body-opts {:type :static :angle 0} :fixt-opts {:restitution 0.5 :friction 0.5} :view-opts {:dot true}}
-   {:type "box"  :id "r1b1" :cx (* w 0.8) :cy (* h 0.25) :hw 5 :hh 100 :body-opts {:angle (u/radians 45)} :fixt-opts {:restitution 0.7 :friction 0.5} :view-opts {:dot true}}])
+    [{:type "box" :id (str id "-n") :cx hw :cy 0  :hw hw :hh  1 :body-opts {:type "static"}}
+     {:type "box" :id (str id "-s") :cx hw :cy h  :hw hw :hh  1 :body-opts {:type "static"}}
+     {:type "box" :id (str id "-e") :cx  w :cy hh :hw 1  :hh hh :body-opts {:type "static"}}
+     {:type "box" :id (str id "-w") :cx  0 :cy hh :hw 1  :hh hh :body-opts {:type "static"}}]))
 
 (defn box
   "A box of half-dimensions hw and hh"
   [id hw hh w h]
-  [{:type "box" :id id :cx (/ w 2) :cy (+ hh 10) :hw hw :hh hh :fixt-opts {:restitution 0.8} :view-opts {:dot true}}])
+  [{:type "box" :id id :cx (/ w 2) :cy (+ hh 10) :hw hw :hh hh :fixt-opts {:restitution 0.8} :view-opts {:label true}}])
+
+(defn rig-tiny-boxes
+  "n little boxes"
+  [id n w h]
+  (for [i (range n)]
+    {:type "box" :id (str id "-" i) :cx (rand-int w) :cy (rand-int h) :hw (+ 3 (rand-int 6)) :hh (+ 3 (rand-int 6)) :fixt-opts {:restitution 0.8} :view-opts {:dot true}}))
+
+(defn rig-tiny-discs
+  "n little discs"
+  [id n w h]
+  (for [i (range n)]
+    {:type "disc" :id (str id "-" i) :cx (rand-int w) :cy (rand-int h) :r (+ 5 (rand-int 5)) :fixt-opts {:restitution 0.8} :view-opts {:dot true}}))
+
+(defn disc-and-box
+  "A static disc and, above it, a dynamic 10px x 10px box"
+  [id w h]
+  [{:type "disc" :id (str id "-d") :cx (/ w 4) :cy (* h 0.75) :r 20 :body-opts {:type :static :angle 0} :fixt-opts {:restitution 0.5 :friction 0.5} :view-opts {:dot true}}
+   {:type "box"  :id (str id "-b") :cx (* w 0.8) :cy (* h 0.25) :hw 5 :hh 100 :body-opts {:angle (u/radians 45)} :fixt-opts {:restitution 0.7 :friction 0.5} :view-opts {:dot true}}])
 
 (defn spinner
   "2 discs, joined by a revolute joint"
-  [w h]
+  [id w h]
   (let [hw (/ w 2)
         hh (/ h 2)
-        min (min h w)]
-    [{:type "disc" :id "s-d1" :cx hw :cy hh :r 5 :body-opts {:type "static"} :view-opts {:visible false}}
-     {:type "disc" :id "s-d2" :cx (* w 0.7) :cy hh :r (* min 0.15) :body-opts {:angle (u/radians -90)} :fixt-opts {:restitution 0.8} :view-opts {:dot true}}
-     {:type "rev-joint" :id "s-j1" :b1-id "s-d1" :b2-id "s-d2" :cx hw :cy hh :joint-opts {:enableMotor true :motorSpeed 5 :maxMotorTorque 100}}]))
-
-(defn rig-mini-boxes
-  "n little boxes"
-  [n w h]
-  (for [i (range n)]
-    {:type "box" :id (str "rmb-b" i) :cx (rand-int w) :cy (rand-int h) :hw (+ 3 (rand-int 6)) :hh (+ 3 (rand-int 6)) :fixt-opts {:restitution 0.8} :view-opts {:dot true}}))
-
-(defn rig-mini-discs
-  "n little discs"
-  [n w h]
-  (for [i (range n)]
-    {:type "disc" :id (str "rmb-d" i) :cx (rand-int w) :cy (rand-int h) :r (+ 5 (rand-int 5)) :fixt-opts {:restitution 0.8} :view-opts {:dot true}}))
+        min (min h w)
+        id1 (str id "-d1")
+        id2 (str id "-d2")
+        idj  id]
+    [{:type "disc" :id id1 :cx hw :cy hh :r 5 :body-opts {:type "static"} :view-opts {:visible false}}
+     {:type "disc" :id id2 :cx (* w 0.7) :cy hh :r (* min 0.15) :body-opts {:angle (u/radians -90)} :fixt-opts {:restitution 0.8} :view-opts {:dot true :label false}}
+     {:type "rev-joint" :id idj :b1-id id1 :b2-id id2 :cx hw :cy hh :joint-opts {:enableMotor true :motorSpeed 4 :maxMotorTorque 100} :view-opts {:label true}}]))
