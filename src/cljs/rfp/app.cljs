@@ -9,7 +9,7 @@
             [rfp.core.utils :as u]))
             ;[rfp.core.devtools]))
 
-;; -- Rigs ------------------------------------------------------------
+;; -- Extra Rigs --------------------------------------------------------------
 (defn four-discs [id w h]
   "Place a static disc at each intersection of a 3x3 grid"
   (let [body-opts {:type :static}
@@ -20,7 +20,7 @@
      {:type "disc" :id (str id "-" 3) :cx (* w (/ 2 3)) :cy (* h (/ 2 3)) :r (* min 0.12) :body-opts body-opts}
      {:type "disc" :id (str id "-" 4) :cx (/ w 3)       :cy (* h (/ 2 3)) :r (* min 0.12) :body-opts body-opts}]))
 
-(defn rev-test-rig [id w h]
+(defn rev-joint [id w h]
   (let [hw (/ w 2)
         hh (/ h 2)
         j-id id
@@ -30,42 +30,76 @@
      {:type "disc" :id d-id  :cx hw :cy hh :r 5 :body-opts {:type :static} :view-opts {:visible false}}
      {:type "rev-joint" :id j-id :b1-id b-id :b2-id d-id :cx hw :cy hh :joint-opts {:enableMotor true :maxMotorTorque 100000 :motorSpeed 10} :view-opts {:label true}}]))
 
+;; -- Demos -------------------------------------------------------------------
+(defn demo-1 [w h world]
+  (concat
+    (rigs/walls "wall" w h)
+    (rigs/box "box" (/ w 2) 60 25 25)))
+
+(defn demo-2 [w h world]
+  (concat
+    (rigs/walls "wall" w h)
+    (rigs/disc  "disc" (- (/ w 2) 20) 150 40)
+    (rigs/box   "box"  (/ w 2)         60 25 25)))
+
+(defn demo-3 [w h world]
+  (concat
+    (rigs/walls "w" w h)
+    (rev-joint "revolute joint" w h)))
+
+(defn rand-gravity! [world]
+  (.setGravity world (pl/vec2 (u/rand-int-3 -10 10) (u/rand-int-3 -10 10))))
+
+(defn demo-4 [w h world]
+  (concat
+    (rigs/walls "wall" w h)
+    (rigs/box "box" (/ w 2) 60 25 25)
+    (rigs/rig-tiny-boxes "mb" 50 w h)
+    (rigs/rig-tiny-discs "md" 50 w h)
+    (four-discs "disc" w h)
+    (rev-joint "revolute (motor) joint" w h)
+    (rigs/interval-timer #(rand-gravity! world) 2500 2500)))
+
 ;; -- DB ----------------------------------------------------------------------
-(defn initial-state [el]
-  (let [w (.-clientWidth el)
-        h (.-clientHeight el)
-        hw (/ w 2)
+(defn rig-loader [rig-maker w h]
+  (let [hw (/ w 2)
         hh (/ h 2)
         world (pl/world [0 10])
-        _ (pl/assemble-in! (rigs/walls "wall" w h) world)
-        _ (pl/assemble-in! (rigs/box "box" 25 25 w h) world)
-        _ (pl/assemble-in! (rigs/rig-tiny-boxes "mb" 50 w h) world)
-        _ (pl/assemble-in! (rigs/rig-tiny-discs "md" 50 w h) world)
-        _ (pl/assemble-in! (four-discs "disc" w h) world)
-        ; _ (pl/assemble-in! (rigs/spinner "spinner" w h) world)]
-        _ (pl/assemble-in! (rev-test-rig "revolute joint" w h) world)]
+        specs (rig-maker w h world)
+        _ (pl/assemble-in! specs world)]
     {:world world
-     :bounds [0 0 w h]}))
+     :bounds [0 0 w h]
+     :raf nil
+     :timer-ids []}))
+
+(defn name->demo [s]
+  (case s
+    "demo-1" demo-1
+    "demo-2" demo-2
+    "demo-3" demo-3
+    "demo-4" demo-4))
+
+(defn load-demo [name w h]
+  (rf/dispatch-sync [:init #(rig-loader (name->demo name) w h)]))
 
 ;; -- Main UI -----------------------------------------------------------------
-(declare overlay)
-
-(defn root-view []
+(defn root-view [w h]
   (fn []
-    [:div.demo
-      [overlay]
+    [:div#demos
+      [:div.overlay
+        [:h1 "re-frame + planck.js"]
+        [:p "Source on " [:a {:href "https://github.com/gamecubate/re-frame-physics"} "GitHub"]]
+        [:select {:defaultValue "rig-1" :on-change #(load-demo (-> % .-target .-value) w h)}
+          [:option {:value "demo-1"} "Box"]
+          [:option {:value "demo-2"} "Box and Disc"]
+          [:option {:value "demo-3"} "Revolute joint"]
+          [:option {:value "demo-4"} "Boxes, discs and joints"]]]
       [views/svg]]))
-
-(defn overlay []
-  (fn []
-    [:div.overlay
-      [:h1 "re-frame + planck.js"]
-      [:p "Source on "
-        [:a {:href "https://github.com/gamecubate/re-frame-physics"} "GitHub"]]]))
 
 ;; -- Entry Point -------------------------------------------------------------
 (defn run []
-  (let [el (.getElementById js/document "container")]
-    (rf/dispatch-sync [:initialize #(initial-state el)])
-    (rf/dispatch [:start-engine])
-    (re/render-component [root-view] el)))
+  (let [el (.getElementById js/document "container")
+        w (.-clientWidth el)
+        h (.-clientHeight el)]
+    (load-demo "demo-1" w h)
+    (re/render-component [root-view w h] el)))

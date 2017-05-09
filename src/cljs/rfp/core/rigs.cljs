@@ -38,8 +38,14 @@
 
 (defn box
   "A box of half-dimensions hw and hh"
-  [id hw hh w h]
-  [{:type "box" :id id :cx (/ w 2) :cy (+ hh 10) :hw hw :hh hh :fixt-opts {:restitution 0.8} :view-opts {:label true}}])
+  [id cx cy hw hh]
+  ; (.log js/console cx cy hw hh)
+  [{:type "box" :id id :cx cx :cy cy :hw hw :hh hh :body-opts {:angle (u/radians 12)} :fixt-opts {:restitution 0.7} :view-opts {:label true}}])
+
+(defn disc
+  "A disc"
+  [id cx cy r]
+  [{:type "disc" :id id :cx cx :cy cy :r r :fixt-opts {:restitution 0.7} :view-opts {:label true}}])
 
 (defn rig-tiny-boxes
   "n little boxes"
@@ -71,3 +77,9 @@
     [{:type "disc" :id id1 :cx hw :cy hh :r 5 :body-opts {:type "static"} :view-opts {:visible false}}
      {:type "disc" :id id2 :cx (* w 0.7) :cy hh :r (* min 0.15) :body-opts {:angle (u/radians -90)} :fixt-opts {:restitution 0.8} :view-opts {:dot true :label false}}
      {:type "rev-joint" :id idj :b1-id id1 :b2-id id2 :cx hw :cy hh :joint-opts {:enableMotor true :motorSpeed 4 :maxMotorTorque 100} :view-opts {:label true}}]))
+
+(defn interval-timer
+  ([f freq]
+   (interval-timer f freq 0))
+  ([f freq delay]
+   [{:type "interval-timer" :f f :freq freq :delay delay}]))

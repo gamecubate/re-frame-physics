@@ -3,38 +3,44 @@
             [rfp.core.planck :as pl]
             [rfp.core.utils :as u]))
 
-(rf/reg-event-db
-  :initialize
-  (fn [_ [_ f]]
-    (f)))
+(rf/reg-fx
+  :cancel-raf
+  (fn [raf]
+    (when raf
+      (.cancelAnimationFrame js/window raf))))
+
+(rf/reg-fx
+  :cancel-timers
+  (fn [timer-ids]
+    (doseq [id timer-ids]
+      (.clearInterval js/window id))))
+
+(rf/reg-fx
+  :step-world
+  (fn [w]
+    (pl/step w)))
 
 (rf/reg-event-fx
-  :start-engine
+  :init
+  (fn [{{:keys [raf timer-ids]} :db} [_ loader]]
+    {:db (loader)
+     :cancel-raf raf
+     :cancel-timers timer-ids
+     :dispatch-later [{:ms 500 :dispatch [:start-physics]}]}))
+
+(rf/reg-event-fx
+  :start-physics
   (fn [cofx _]
     (let [db (:db cofx)
           raf (.requestAnimationFrame js/window #(rf/dispatch [:tick %]))]
-      {:db (assoc-in db [:raf] raf)
-       :dispatch-later [{:ms 2000 :dispatch [:start-gravity-fx]}]})))
+      {:db (assoc-in db [:raf] raf)})))
 
 (rf/reg-event-fx
   :tick
-  (fn [cofx [_ dt]]
-    (let [db (:db cofx)
-          {:keys [world raf]} db]
-      (.cancelAnimationFrame js/window raf)
-      (pl/step world)
-      {:db (assoc-in db [:raf] (.requestAnimationFrame js/window #(rf/dispatch [:tick %])))})))
-
-(rf/reg-event-fx
-  :start-gravity-fx
-  (fn []
-    (.setInterval js/window #(rf/dispatch [:change-gravity]) (u/rand-int-3 1000 3000))
-    {}))
-
-(rf/reg-event-fx
-  :change-gravity
   (fn [cofx _]
     (let [db (:db cofx)
           world (:world db)
-          grav (pl/vec2 (u/rand-int-3 -10 10) (u/rand-int-3 -10 10))]
-      (.setGravity world grav))))
+          raf (:raf db)]
+      {:step-world world
+       :cancel-raf raf
+       :db (assoc-in db [:raf] (.requestAnimationFrame js/window #(rf/dispatch [:tick %])))})))

@@ -1,4 +1,5 @@
-(ns rfp.core.planck)
+(ns rfp.core.planck
+  (:require [rfp.core.utils :as u]))
 
 ;; -- Conversion (pixels to meters / meters to pixels) ------------------------
 ;;
@@ -195,7 +196,7 @@
                     :label false})
 
 ;; -- Makers ------------------------------------------------------------------
-(defn assemble-disc' [spec world]
+(defn assemble-disc [spec world]
   ; (.log js/console "assemble-disc'" spec)
   (let [{:keys [type id cx cy r body-opts fixt-opts view-opts]} spec
         body-opts' (merge body-defaults body-opts)
@@ -207,7 +208,7 @@
         fixt (create-fixture body circ fixt-opts')]
     fixt))
 
-(defn assemble-box' [spec world]
+(defn assemble-box [spec world]
   ; (.log js/console "assemble-box'" spec)
   (let [{:keys [type id cx cy hw hh body-opts fixt-opts view-opts]} spec
         body-opts' (merge body-defaults body-opts)
@@ -219,7 +220,7 @@
         fixt (create-fixture body box fixt-opts')]
     fixt))
 
-(defn assemble-rev-joint' [spec world]
+(defn assemble-rev-joint [spec world]
   ; (.log js/console "assemble-rev-joint'" spec)
   (let [{:keys [type id b1-id b2-id cx cy joint-opts view-opts]} spec
         joint-opts' (merge rev-joint-defaults joint-opts)
@@ -233,10 +234,16 @@
         _ (.setUserData world-joint user-data)]
     world-joint))
 
+(defn interval-timer [spec]
+  (let [{:keys [f freq delay]} spec
+        id (.setTimeout js/window #(.setInterval js/window f freq) delay)]
+    id))
+
 (defn assemble-in! [specs world]
   (doseq [s specs]
     (let [{:keys [type]} s]
       (case type
-        "disc"       (assemble-disc' s world)
-        "box"        (assemble-box' s world)
-        "rev-joint"  (assemble-rev-joint' s world)))))
+        "disc"           (assemble-disc s world)
+        "box"            (assemble-box s world)
+        "rev-joint"      (assemble-rev-joint s world)
+        "interval-timer" (interval-timer s)))))
